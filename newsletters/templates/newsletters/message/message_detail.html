@@ -1,0 +1,16 @@
+{% extends 'newsletters/base.html' %}
+
+{% block content %}
+<h2>Письмо</h2>
+<div class="card">
+    <div class="card-body">
+        <p><strong>Тема:</strong>{{ object.subject }}</p>
+        <p><strong>Сообщение:</strong> {{ object.text }}</p>
+        {% if object.owner == request.user %}
+        <a href="{% url 'newsletters:message_update' object.pk %}" class="btn btn-primary">Изменить</a>
+        <a href="{% url 'newsletters:message_delete' object.pk %}" class="btn btn-primary">Удалить</a>
+        <a href="{% url 'newsletters:message_list' %}" class="btn btn-primary">Назад</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'newsletters/base.html' %}
+
+{% block content %}
+<h2>Рассылка: {{ object.message.subject }}</h2>
+<div class="card">
+    <div class="card-body">
+        <p><strong>Статус:</strong> {{ object.status }}</p>
+        <p><strong>Период:</strong> {{ object.start_sending }} - {{ object.end_sending }}</p>
+        <p><strong>Сообщение:</strong> {{ object.message.text }}</p>
+        <p><strong>Получатели:</strong></p>
+        <ul>
+            {% for recipient in object.recipient.all %}
+            <li>{{ recipient.full_name }} ({{ recipient.email }})</li>
+            {% endfor %}
+        </ul>
+        {% if object.owner == request.user %}
+        <a href="{% url 'newsletters:send_newsletter' object.pk %}" class="btn btn-primary">Отправить сейчас</a>
+        <a href="{% url 'newsletters:newsletter_update' object.pk %}" class="btn btn-primary">Изменить</a>
+        <a href="{% url 'newsletters:newsletter_delete' object.pk %}" class="btn btn-primary">Удалить</a>
+        <a href="{% url 'newsletters:newsletter_list' %}" class="btn btn-primary">Назад</a>
+        {% endif %}
+    </div>
+</div>
+
+<h3 class="mt-4">История попыток</h3>
+<table class="table">
+    ...
+</table>
+{% endblock %}
