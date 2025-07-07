@@ -7,6 +7,7 @@ from django.views.generic import CreateView, UpdateView, ListView
 from config.settings import EMAIL_HOST_USER
 from users.forms import UserRegisterForm, UserProfileForm
 from users.models import User
+from django.contrib import messages
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, \
     PasswordResetCompleteView
 
@@ -53,3 +54,16 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
 class UserListView(ListView):
     model = User
     template_name = 'users/user_list.html'
+
+
+def block_user(request, pk):
+    if not request.user.has_perm('users.can_block_user'):
+        messages.error(request, 'У вас нет прав для блокировки пользователей')
+        return redirect('newsletters:home')
+
+    user = get_object_or_404(User, pk=pk)
+    user.is_active = False
+    user.save()
+
+    action = "разблокирован" if user.is_active else "заблокирован"
+    return redirect('users:user_list')

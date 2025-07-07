@@ -5,23 +5,29 @@ from django.urls import reverse_lazy, reverse
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from config import settings
-from .forms import NewsletterForm, NewsletterUForm, MessageForm, RecipientForm
+from .forms import NewsletterForm, NewsletterUForm, MessageForm, RecipientForm, NewsletterManagerForm
 from .models import Recipient, Message, Newsletter, NewsletterAttempt
 from .services import send_message
+from django.core.cache import cache
 
 
 def home(request):
-    total_newsletters = Newsletter.objects.count()
-    active_newsletters = Newsletter.objects.filter(status='Запущена').count()
+    context = cache.get('home')
 
-    # Получаем количество уникальных email-адресов получателей
-    unique_recipients = Recipient.objects.values('email').distinct().count()
+    if not context:
+        total_newsletters = Newsletter.objects.count()
+        active_newsletters = Newsletter.objects.filter(status='Запущена').count()
 
-    context = {
-        'total_newsletters': total_newsletters,
-        'active_newsletters': active_newsletters,
-        'unique_recipients': unique_recipients,
-    }
+        # Получаем количество уникальных email-адресов получателей
+        unique_recipients = Recipient.objects.values('email').distinct().count()
+
+        context = {
+            'total_newsletters': total_newsletters,
+            'active_newsletters': active_newsletters,
+            'unique_recipients': unique_recipients,
+        }
+        cache.set('home', context, 60 * 15)
+
     return render(request, 'newsletters/home.html', context)
 
 
@@ -100,6 +106,15 @@ class NewsletterDetailView(DetailView):
     model = Newsletter
     template_name = 'newsletters/newsletter/newsletter_detail.html'
 
+    def get_queryset(self):
+        if self.request.user.groups.filter(name='Manager').exists():
+            queryset = cache.get('newsletter_list_for_manager')
+            if not queryset:
+                queryset = super().get_queryset()
+                cache.set('newsletter_list_for_manager', queryset, 60 * 15)  # Кешируем данные на 15 минут
+            return queryset
+        return super().get_queryset()
+
 
 class NewsletterCreateView(CreateView):
     model = Newsletter
@@ -128,6 +143,8 @@ class NewsletterUpdateView(UpdateView):
         user = self.request.user
         if user == self.object.owner:
             return NewsletterUForm
+        elif user.groups.filter(name='Manager').exists():
+            return NewsletterManagerForm
         raise PermissionDenied
 
 
@@ -146,17 +163,30 @@ class NewsletterAttemptListView(ListView):
         context = super().get_context_data(**kwargs)
         attempts = self.get_queryset()
         context['total_attempts'] = attempts.count()
-        context['successful_attempts'] = attempts.filter(status='SUCCESS').count()
-        context['unsucessful_attempts'] = attempts.filter(status='UNSUCCESS').count()
+        context['successful_attempts'] = attempts.filter(status='Успешно').count()
+        context['unsucessful_attempts'] = attempts.filter(status='Не успешно').count()
+        context['sending_mails'] = sum(
+            attempt.newsletter.recipient.count()
+            for attempt in attempts.filter(status='Успешно')
+        )
         return context
 
     def get_queryset(self):
         if not self.request.user.is_authenticated:
             raise PermissionDenied("Вы не авторизованы")
 
-        return NewsletterAttempt.objects.filter(
-            newsletter__owner=self.request.user
-        ).order_by('-date_attempt')
+        cache_key = f'newsletter_attempts_user_{self.request.user.pk}'
+        queryset = cache.get(cache_key)
+        if not queryset:
+            queryset = NewsletterAttempt.objects.filter(newsletter__owner=self.request.user).order_by('-date_attempt')
+            cache.set(cache_key, queryset, 60 * 15)
+
+        return queryset
+
+
+class NewsletterAttemptDetailView(DetailView):
+    model = NewsletterAttempt
+    template_name = 'newsletters/newsletter_attempt_detail.html'
 
 
 class SendNewsletterView(View):

@@ -2,6 +2,7 @@ from django.utils import timezone
 from django.utils.timezone import localtime
 from django.core.mail import send_mail
 from .models import Newsletter, NewsletterAttempt
+from config.settings import EMAIL_HOST_USER
 
 
 def send_message(pk, request=None):
@@ -20,7 +21,6 @@ def send_message(pk, request=None):
 
     subject = newsletter.message.subject
     message=newsletter.message.text
-    from_email = newsletter.owner.email
     recipient_list = [recipient.email for recipient in newsletter.recipient.all()]
 
     if newsletter.status == Newsletter.ENDED:
@@ -64,7 +64,7 @@ def send_message(pk, request=None):
         send_mail(
             subject=subject,
             message=message,
-            from_email=from_email,
+            from_email=EMAIL_HOST_USER,
             recipient_list=recipient_list,
             fail_silently=False,
         )

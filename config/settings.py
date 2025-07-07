@@ -119,8 +119,8 @@ ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')
 
 AUTH_USER_MODEL = 'users.User'
 
-LOGIN_REDIRECT_URL = 'newsletters:newsletter_attempt_list'
-LOGOUT_REDIRECT_URL = 'newsletters:newsletter_attempt_list'
+LOGIN_REDIRECT_URL = 'newsletters:home'
+LOGOUT_REDIRECT_URL = 'newsletters:home'
 
 CACHE_ENABLED = True
 if CACHE_ENABLED:

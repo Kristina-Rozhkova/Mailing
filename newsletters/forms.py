@@ -69,7 +69,7 @@ class StyleFormMixin:
 class NewsletterUForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Newsletter
-        fields = ['start_sending', 'end_sending', 'status', 'recipient']
+        fields = ['start_sending', 'end_sending', 'status', 'recipient', 'message']
 
 
 class NewsletterForm(StyleFormMixin, ModelForm):
@@ -82,6 +82,12 @@ class NewsletterForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Newsletter
         fields = ['message', 'recipients', 'start_sending', 'end_sending']
+
+
+class NewsletterManagerForm(StyleFormMixin, ModelForm):
+    class Meta:
+        model = Newsletter
+        fields = ['status']
 
 
 class MessageForm(StyleFormMixin, ModelForm):

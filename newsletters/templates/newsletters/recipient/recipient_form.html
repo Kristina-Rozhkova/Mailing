@@ -1,6 +1,6 @@
 {% extends 'newsletters/base.html' %}
 {% block content %}
-<div class="row">
+<div class="row pt-3 pb-2 mb-3">
     <div class="col-lg-6 col-md-8 mx-auto">
         <div class="card mb-4 box-shadow">
             <div class="card-header">
@@ -15,11 +15,11 @@
                     {% csrf_token %}
                     {{ form.as_p }}
                     {% if object %}
-                    <button type="submit" class="btn btn-block btn-outline-primary">Изменить</button>
+                    <button type="submit" class="btn btn-outline-secondary btn-sm">Изменить</button>
                     {% else %}
-                    <button type="submit" class="btn btn-block btn-outline-primary">Добавить</button>
+                    <button type="submit" class="btn btn-outline-secondary btn-sm">Добавить</button>
                     {% endif %}
-                    <a class="btn btn-block btn-outline-primary" href="{% url 'newsletters:recipient_list' %}"
+                    <a class="btn btn-outline-secondary btn-sm" href="{% url 'newsletters:recipient_list' %}"
                        role="button">Назад</a>
                 </form>
             </div>
