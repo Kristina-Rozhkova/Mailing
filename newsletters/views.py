@@ -47,6 +47,13 @@ class RecipientCreateView(CreateView):
     template_name = 'newsletters/recipient/recipient_form.html'
     success_url = reverse_lazy('newsletters:recipient_list')
 
+    def form_valid(self, form):
+        recipient = form.save()
+        user = self.request.user
+        recipient.owner = user
+        recipient.save()
+        return super().form_valid(form)
+
 
 class RecipientUpdateView(UpdateView):
     model = Recipient
@@ -79,6 +86,13 @@ class MessageCreateView(CreateView):
     template_name = 'newsletters/message/message_form.html'
     form_class = MessageForm
     success_url = reverse_lazy('newsletters:message_list')
+
+    def form_valid(self, form):
+        message = form.save()
+        user = self.request.user
+        message.owner = user
+        message.save()
+        return super().form_valid(form)
 
 
 class MessageUpdateView(UpdateView):
