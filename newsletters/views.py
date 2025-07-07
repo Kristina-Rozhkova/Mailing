@@ -142,6 +142,14 @@ class NewsletterAttemptListView(ListView):
     template_name = 'newsletters/newsletter_attempt_list.html'
     context_object_name = 'attempts'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        attempts = self.get_queryset()
+        context['total_attempts'] = attempts.count()
+        context['successful_attempts'] = attempts.filter(status='SUCCESS').count()
+        context['unsucessful_attempts'] = attempts.filter(status='UNSUCCESS').count()
+        return context
+
     def get_queryset(self):
         if not self.request.user.is_authenticated:
             raise PermissionDenied("Вы не авторизованы")
@@ -165,4 +173,3 @@ class SendNewsletterView(View):
             print('Рассылка не отправлена')
 
         return redirect('newsletters:newsletter_list')
-

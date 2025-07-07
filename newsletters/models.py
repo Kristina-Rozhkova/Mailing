@@ -5,7 +5,7 @@ from users.models import User
 class Recipient(models.Model):
     email = models.CharField(
         max_length=100,
-        verbose_name='email',
+        verbose_name='Электронная почта',
         help_text='Введите адрес электронной почты',
         unique=True
     )
@@ -22,7 +22,7 @@ class Recipient(models.Model):
     )
     owner = models.ForeignKey(
         User,
-        verbose_name='владелец',
+        verbose_name='Владелец',
         on_delete=models.CASCADE,
         blank=True,
         null=True,
@@ -56,7 +56,7 @@ class Message(models.Model):
     )
     owner = models.ForeignKey(
         User,
-        verbose_name='владелец',
+        verbose_name='Автор',
         on_delete=models.CASCADE,
         blank=True,
         null=True,
@@ -103,11 +103,13 @@ class Newsletter(models.Model):
     message = models.ForeignKey(
         to=Message,
         on_delete=models.CASCADE,
-        related_name='messages'
+        related_name='messages',
+        verbose_name='Письмо'
     )
     recipient = models.ManyToManyField(
         to=Recipient,
-        related_name='recipients'
+        related_name='recipients',
+        verbose_name='Получатели'
     )
     owner = models.ForeignKey(
         User,
@@ -115,7 +117,8 @@ class Newsletter(models.Model):
         blank=True,
         null=True,
         help_text='Укажите владельца',
-        related_name='newsletter_owner'
+        related_name='newsletter_owner',
+        verbose_name='Автор'
     )
 
     def __str__(self):
@@ -159,4 +162,16 @@ class NewsletterAttempt(models.Model):
         related_name='attempts',
         null=True,
         blank=True,
+        verbose_name='Рассылка'
     )
+
+    def __str__(self):
+        return (f'Статус: {self.status},'
+                f'Тема письма: {self.newsletter.message.subject}'
+                f'Дата попытки: {self.date_attempt},'
+                f'Ответ сервера: {self.answer}')
+
+    class Meta:
+        verbose_name = 'Попытка рассылки'
+        verbose_name_plural = 'Попытки рассылок'
+        ordering = ['status', 'date_attempt',]

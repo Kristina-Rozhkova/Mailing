@@ -18,9 +18,9 @@
 </div>
 <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
 <h2>Попытки рассылок</h2>
-<p>Всего попыток: {{ attempts.count }}</p>
-<p>Успешных попыток: </p>
-<p>Неуспешных попыток: </p>
+<p>Всего попыток: {{ total_attempts }}</p>
+<p>Успешных попыток: {{ successful_attempts }}</p>
+<p>Неуспешных попыток: {{ unsucessful_attempts }}</p>
 <p>Отправленных сообщений: </p>
 <div class="table-responsive small">
     {% if attempts %}

@@ -18,9 +18,8 @@ class MessageAdmin(admin.ModelAdmin):
 
 @admin.register(Newsletter)
 class NewsletterAdmin(admin.ModelAdmin):
-    list_display = ('message', 'start_sending', 'end_sending', 'status')
+    list_display = ('start_sending', 'end_sending', 'status')
     list_filter = ('status', 'start_sending', 'end_sending')
-    search_fields = ('message',)
 
 
 @admin.register(NewsletterAttempt)
