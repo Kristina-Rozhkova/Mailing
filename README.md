@@ -135,7 +135,7 @@ poetry run python manage.py runserver
 │   ├── management/
 │   │   └── commands/        
 │   │       ├── __init__.py
-│   │       └── send_newsletter.py          # Кастомная команда отправки рассылки
+│   │       └── csu.py          # Кастомная команда создания суперпользователя
 │   │
 │   ├── templates/                          # Шаблоны модели пользователя
 │   │   └── users/
